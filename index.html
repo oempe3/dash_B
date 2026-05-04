@@ -327,17 +327,15 @@ function renderKPIs(b){
     +'</div>';
 }
 
-/* Aderência:
-   _ALL:       (dias_trabalhados × 7) / horas_manut
-   individual: (dias_trabalhados × 2,34) / horas_manut       */
+/* Aderência fixa:
+   _ALL:       126h por mês
+   individual: 42h por operador/mês       */
 function calcAder(b){
-  const dias=b.dias_trabalhados||0;
   const isSingle=state.operador&&state.operador!=='_ALL';
-  const fator=isSingle?2.34:7;
-  const hhProg=dias*fator;
+  const hhProg=isSingle?42:126;
   const hhApt=b.horas_manut||0;
   const pct=hhProg>0?Math.round((hhApt/hhProg)*100):0;
-  return{hhProg,hhApt,pct,fator,isSingle};
+  return{hhProg,hhApt,pct,fator:hhProg,isSingle};
 }
 
 function renderHHPanel(b){
@@ -356,8 +354,8 @@ function renderHHPanel(b){
       +'<span style="font-size:9px;color:var(--text-dim);min-width:28px;text-align:right">'+p+'%</span>'
     +'</div>';
   }).join('');
-  const formulaStr=isSingle?'(dias × 2,34) / HH manutenção':'(dias × 7) / HH manutenção';
-  const ttStr='Aderência = '+formulaStr+'. HH Programado = '+b.dias_trabalhados+' × '+(isSingle?'2,34':'7')+'h = '+hhProg.toFixed(2)+'h';
+  const formulaStr=isSingle?'HH planejado fixo: 42h por operador/mês':'HH planejado fixo: 126h por mês';
+  const ttStr='Aderência = HH manutenção apontada / HH planejada. '+formulaStr+'. HH Programado = '+hhProg.toFixed(2)+'h';
   return '<div class="card" style="margin-top:12px">'
     +'<h3>HH Apontado × Programado<span class="hint" title="'+ttStr+'">?</span></h3>'
     +'<div class="card-sub" style="margin-bottom:10px">Manutenção apontada vs meta planejada</div>'
@@ -365,7 +363,7 @@ function renderHHPanel(b){
       +'<div style="background:var(--surface-2);border:1px solid var(--line);border-radius:11px;padding:10px;text-align:center">'
         +'<div style="font-size:9px;color:var(--text-mute);text-transform:uppercase;letter-spacing:.1em;margin-bottom:3px">HH Programado</div>'
         +'<div style="font-family:Outfit,sans-serif;font-size:22px;font-weight:700;color:var(--op)">'+fmtNum(hhProg,2)+'<span style="font-size:10px;color:var(--text-mute);font-weight:400">h</span></div>'
-        +'<div style="font-size:9px;color:var(--text-dim);margin-top:2px">dias × '+(isSingle?'2,34':'7')+'h</div>'
+        +'<div style="font-size:9px;color:var(--text-dim);margin-top:2px">'+(isSingle?'42h por operador':'126h por mês')+'</div>'
       +'</div>'
       +'<div style="background:var(--surface-2);border:1px solid var(--line);border-radius:11px;padding:10px;text-align:center">'
         +'<div style="font-size:9px;color:var(--text-mute);text-transform:uppercase;letter-spacing:.1em;margin-bottom:3px">HH Apontado (MNT)</div>'
@@ -479,8 +477,7 @@ function renderMonthlyBoard(){
     const hO=md.horas_oper||0,hM=md.horas_manut||0,hT=md.horas_total||(hO+hM);
     const osCnt=md.total_os||0,dias=md.dias_trabalhados||0;
     const isSingle=state.operador&&state.operador!=='_ALL';
-    const fator=isSingle?2.34:7;
-    const hhProg=dias*fator;
+    const hhProg=isSingle?42:126;
     const aderPct=hhProg>0?(hM/hhProg)*100:0;
     const aderCor=aderPct>=100?'#22c55e':(aderPct>=80?'#f59e0b':'#ef4444');
     return '<div class="month-card">'
@@ -495,7 +492,7 @@ function renderMonthlyBoard(){
   }).filter(Boolean);
   if(!cards.length)return'';
   return '<div class="card" style="margin-top:12px">'
-    +'<h3>Resumo mensal<span class="hint" title="Aderência calculada: _ALL = (dias×7)/HH_manut | individual = (dias×2,34)/HH_manut. Quadros gerados conforme planilha.">?</span></h3>'
+    +'<h3>Resumo mensal<span class="hint" title="Aderência calculada com HH planejada fixa: 126h/mês para todos os operadores e 42h/mês por operador.">?</span></h3>'
     +'<div class="card-sub">Evolução por mês — filtro por operador aplicado</div>'
     +'<div class="monthly-board">'+cards.join('')+'</div>'
     +'</div>';
