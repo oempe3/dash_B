@@ -39,7 +39,7 @@ body{font-family:'Inter Tight',system-ui,sans-serif;background:radial-gradient(1
 .btn-refresh .ico{width:14px;height:14px;flex-shrink:0}
 @keyframes spin{to{transform:rotate(360deg)}}
 .op-filter{display:flex;align-items:center;background:var(--surface-2);border:1px solid var(--line);border-radius:999px;padding:2px}
-.op-filter select{appearance:none;background:transparent;color:var(--text);border:0;outline:0;font-family:inherit;font-size:12px;font-weight:500;padding:6px 24px 6px 11px;cursor:pointer;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'><path d='M1 3l4 4 4-4' stroke='%239aa6b6' stroke-width='1.5' fill='none' stroke-linecap='round'/></svg>");background-repeat:no-repeat;background-position:right 7px center}
+.op-filter select{appearance:none;background:transparent;color:var(--text);border:0;outline:0;font-family:inherit;font-size:12px;font-weight:500;padding:6px 24px 6px 11px;cursor:pointer;background-image:("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'><path d='M1 3l4 4 4-4' stroke='%239aa6b6' stroke-width='1.5' fill='none' stroke-linecap='round'/></svg>");background-repeat:no-repeat;background-position:right 7px center}
 .op-filter select option{background:var(--surface-2);color:var(--text)}
 .header-logos{display:flex;gap:7px;align-items:center;margin-left:6px}
 .logo-img{width:26px;height:auto;filter:drop-shadow(0 0 3px rgba(0,0,0,.3))}
@@ -235,7 +235,7 @@ body{font-family:'Inter Tight',system-ui,sans-serif;background:radial-gradient(1
 <script>
 (function(){
 "use strict";
-const APPS_SCRIPT_URL="https://script.google.com/macros/s/AKfycbwukuRmWiTJ-Xa09JCwviJY-TD6LX0WZRzciC7cTFFcI8sV3f83xbj9Iva024OvBF0V/exec";
+const APPS_SCRIPT_URL="https://script.google.com/macros/s/AKfycbzxTtJee2IrxWY76rHZxLTwW5vYJ8ZQocxjD2vrY46k_tZHh_0iecvFFnAEqPMGovEVLg/exec";
 const TIPOS_MANUT=["CORR","EM","PRED","PREV","SERV","MODI"];
 const ALL_TIPOS=["OPER",...TIPOS_MANUT];
 const MANUT_LABELS={CORR:{nome:"Corretiva",cor:"var(--m-corr)"},EM:{nome:"Emergencial",cor:"var(--m-em)"},PRED:{nome:"Preditiva",cor:"var(--m-pred)"},PREV:{nome:"Preventiva",cor:"var(--m-prev)"},SERV:{nome:"Serviços",cor:"var(--m-serv)"},MODI:{nome:"Modificativa",cor:"var(--m-modi)"}};
