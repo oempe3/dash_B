@@ -155,7 +155,8 @@ body{font-family:'Inter Tight',system-ui,sans-serif;background:radial-gradient(1
 .footer code{font-family:'JetBrains Mono',monospace;background:var(--surface-2);padding:1px 4px;border-radius:4px;color:var(--text-mute)}
 .date-filter{display:flex;gap:6px;margin-bottom:7px;flex-wrap:wrap;font-size:10px;align-items:center}
 .date-filter label{display:flex;align-items:center;gap:3px;color:var(--text-mute)}
-.date-filter input[type="date"]{background:var(--surface-2);color:var(--text);border:1px solid var(--line);padding:4px 5px;border-radius:7px;font-size:10px;font-family:inherit}
+.date-filter input[type="text"]{background:var(--surface-2);color:var(--text);border:1px solid var(--line);padding:4px 7px;border-radius:7px;font-size:10px;font-family:"JetBrains Mono",monospace;width:88px;letter-spacing:.03em}
+.date-filter input[type="text"]::placeholder{color:var(--text-dim)}
 .date-filter button{appearance:none;border:1px solid var(--line-strong);background:var(--surface-2);color:var(--text);font-size:10px;font-weight:600;padding:4px 9px;border-radius:999px;cursor:pointer;transition:all .2s ease;white-space:nowrap}
 .date-filter button:hover{background:var(--surface-3);border-color:var(--op);color:var(--op)}
 .monthly-board{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:9px}
@@ -235,7 +236,7 @@ body{font-family:'Inter Tight',system-ui,sans-serif;background:radial-gradient(1
 <script>
 (function(){
 "use strict";
-const APPS_SCRIPT_URL="https://script.google.com/macros/s/AKfycbwNIw-jzdR3qoy1KWsS2R33lU6mYCf0HgRRJWPonPKbLQ6kejG2Q_S8CYWytPG5PQYQ/exec";
+const APPS_SCRIPT_URL="https://script.google.com/macros/s/AKfycbweAf6n0ZFp2UaY0yuzEQdM_NYR92wFeXs5CQS_klh0qWSK0P_lj22Kw-VWuZ7-64ySxg/exec";
 const TIPOS_MANUT=["CORR","EM","PRED","PREV","SERV","MODI"];
 const ALL_TIPOS=["OPER",...TIPOS_MANUT];
 const MANUT_LABELS={CORR:{nome:"Corretiva",cor:"var(--m-corr)"},EM:{nome:"Emergencial",cor:"var(--m-em)"},PRED:{nome:"Preditiva",cor:"var(--m-pred)"},PREV:{nome:"Preventiva",cor:"var(--m-prev)"},SERV:{nome:"Serviços",cor:"var(--m-serv)"},MODI:{nome:"Modificativa",cor:"var(--m-modi)"}};
@@ -532,8 +533,37 @@ function bindDateFilter(){
   const s=document.getElementById('startDate'),e=document.getElementById('endDate');
   const btn=document.getElementById('applyDateFilter'),cl=document.getElementById('clearDateFilter');
   if(!s||!e||!btn)return;
-  if(state.startDate)s.value=state.startDate;if(state.endDate)e.value=state.endDate;
-  btn.onclick=()=>{state.startDate=s.value||null;state.endDate=e.value||null;render()};
+
+  // Converte YYYY-MM-DD (interno) → DD/MM/AAAA (exibição)
+  function toDisplay(iso){if(!iso)return'';const p=iso.split('-');return p[2]+'/'+p[1]+'/'+p[0]}
+  // Converte DD/MM/AAAA → YYYY-MM-DD (interno para comparação)
+  function toISO(br){
+    const m=br.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+    if(!m)return null;
+    return m[3]+'-'+String(m[2]).padStart(2,'0')+'-'+String(m[1]).padStart(2,'0');
+  }
+  // Máscara automática: insere / ao digitar
+  function applyMask(input){
+    input.addEventListener('input',function(){
+      let v=this.value.replace(/\D/g,'');
+      if(v.length>2)v=v.slice(0,2)+'/'+v.slice(2);
+      if(v.length>5)v=v.slice(0,5)+'/'+v.slice(5);
+      if(v.length>10)v=v.slice(0,10);
+      this.value=v;
+    });
+  }
+  applyMask(s);applyMask(e);
+
+  // Restaurar valores salvos no state (internamente YYYY-MM-DD)
+  if(state.startDate)s.value=toDisplay(state.startDate);
+  if(state.endDate)e.value=toDisplay(state.endDate);
+
+  btn.onclick=()=>{
+    const si=toISO(s.value),ei=toISO(e.value);
+    if(s.value&&!si){showToast('Data "De" inválida — use DD/MM/AAAA','error');return}
+    if(e.value&&!ei){showToast('Data "Até" inválida — use DD/MM/AAAA','error');return}
+    state.startDate=si||null;state.endDate=ei||null;render();
+  };
   if(cl)cl.onclick=()=>{state.startDate=null;state.endDate=null;s.value='';e.value='';render()};
 }
 
@@ -610,7 +640,7 @@ function render(){
     +renderHHPanel(b)
     +'<div class="grid-2">'
       +'<div class="card"><h3>Horas por dia<span class="hint" title="Azul=OPER, roxo=manutenção. Passe o mouse para detalhes. Filtre por período com os campos abaixo.">?</span></h3>'
-        +'<div class="date-filter"><label>De: <input type="date" id="startDate"></label><label>Até: <input type="date" id="endDate"></label><button id="applyDateFilter">Aplicar</button><button id="clearDateFilter">Limpar</button></div>'
+        +'<div class="date-filter"><label>De: <input type="text" id="startDate" placeholder="DD/MM/AAAA" maxlength="10"></label><label>Até: <input type="text" id="endDate" placeholder="DD/MM/AAAA" maxlength="10"></label><button id="applyDateFilter">Aplicar</button><button id="clearDateFilter">Limpar</button></div>'
         +'<div class="card-sub">Operação vs. manutenção por dia</div>'
         +renderChartFiltered(b,state.mes)
       +'</div>'
